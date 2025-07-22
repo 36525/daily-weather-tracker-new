@@ -28,10 +28,8 @@ jobs:
 
     - name: Upload to BigQuery
       env:
-        GOOGLE_APPLICATION_CREDENTIALS: /tmp/key.json
-      run: |
-        echo "${{ secrets.BIGQUERY_KEY_JSON }}" > /tmp/key.json
-        python upload_to_bigquery.py
+        BIGQUERY_KEY_JSON: ${{ secrets.BIGQUERY_KEY_JSON }}
+      run: python upload_to_bigquery.py
 
     - name: Commit and Push updated CSV
       run: |
