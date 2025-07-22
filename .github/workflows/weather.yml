@@ -2,7 +2,7 @@ name: Daily Weather Logger
 
 on:
   schedule:
-    - cron: '0 6 * * *'
+    - cron: '0 6 * * *'  # kasdien 09:00 LT (06:00 UTC)
   workflow_dispatch:
 
 jobs:
@@ -26,7 +26,14 @@ jobs:
     - name: Run weather logger
       run: python daily_weather_logger.py
 
-    - name: Commit and Push
+    - name: Upload to BigQuery
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: /tmp/key.json
+      run: |
+        echo "${{ secrets.BIGQUERY_KEY_JSON }}" > /tmp/key.json
+        python upload_to_bigquery.py
+
+    - name: Commit and Push updated CSV
       run: |
         git config --global user.name "github-actions"
         git config --global user.email "github-actions@users.noreply.github.com"
