@@ -2,8 +2,8 @@ name: Daily Weather Logger
 
 on:
   schedule:
-    - cron: '0 6 * * *'  # Kiekvieną dieną 06:00 UTC (09:00 Lietuvos laiku)
-  workflow_dispatch:      # Paleidimas rankiniu būdu
+    - cron: '0 6 * * *'  # kasdien 06:00 UTC (09:00 LT)
+  workflow_dispatch:       # paleidimas rankiniu būdu
 
 jobs:
   run-script:
@@ -24,10 +24,13 @@ jobs:
     - name: Run weather logger
       run: python daily_weather_logger.py
 
-    - name: Commit changes
+    - name: Commit and Push with PAT
+      env:
+        GH_PAT: ${{ secrets.GH_PAT }}
       run: |
-        git config --global user.name 'github-actions'
-        git config --global user.email 'github-actions@users.noreply.github.com'
+        git config --global user.name "github-actions"
+        git config --global user.email "github-actions@users.noreply.github.com"
         git add daily_weather.csv
-        git commit -m "🔁 Daily weather update - $(date +'%Y-%m-%d')" || echo "No changes to commit"
-        git push
+        git commit -m "🔁 Daily weather update - $(date +'%Y-%m-%d')" || echo "No changes"
+        git remote set-url origin https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}
+        git push origin HEAD:main
